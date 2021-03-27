@@ -131,7 +131,11 @@ class KNearestNeighbor(object):
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        dists = np.sqrt()
+        xy = -2 * np.dot(X, self.X_train.T)
+        x2 = np.sum(np.square(self.X_train), axis=1)
+        y2 = np.sum(np.square(X)[:, np.newaxis, :], axis=2)
+
+        dists = np.sqrt(xy + (x2 + y2))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -181,11 +185,18 @@ class KNearestNeighbor(object):
             for y in closest_y:
                 freq[y] = freq.get(y, 0) + 1
 
-            max_label = max(freq, key=freq.get)
-            # TODO - check ties
-            # items = freq.items()
-            # sorted_items = sorted(items)
-            y_pred[i] = max_label
+            max_value = max(freq, key=freq.get)
+            # ties = []
+            # for key, value in freq.items():
+            #     if value == max_value:
+            #         ties.append(key)
+            # min_key = sorted(ties)
+            # if len(min_key) > 0:
+            #     label = [min_key]
+            # else:
+            #     label = [k for k, v in freq.items() if v == max_value]
+
+            y_pred[i] = max_value
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
