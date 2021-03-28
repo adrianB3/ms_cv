@@ -131,6 +131,9 @@ class KNearestNeighbor(object):
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        # decompose (x - y)^2 into x^2 + y^2 - 2xy where x, y are the vectors of pixels
+        # corresponding to images I_1 and I_2
+
         xy = -2 * np.dot(X, self.X_train.T)
         x2 = np.sum(np.square(self.X_train), axis=1)
         y2 = np.sum(np.square(X)[:, np.newaxis, :], axis=2)
@@ -181,20 +184,7 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            freq = {}
-            for y in closest_y:
-                freq[y] = freq.get(y, 0) + 1
-
-            max_value = max(freq, key=freq.get)
-            # ties = []
-            # for key, value in freq.items():
-            #     if value == max_value:
-            #         ties.append(key)
-            # min_key = sorted(ties)
-            # if len(min_key) > 0:
-            #     label = [min_key]
-            # else:
-            #     label = [k for k, v in freq.items() if v == max_value]
+            max_value = np.argmax(np.bincount(closest_y))
 
             y_pred[i] = max_value
 

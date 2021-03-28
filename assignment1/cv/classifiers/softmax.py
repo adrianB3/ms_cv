@@ -89,21 +89,13 @@ def softmax_loss_vectorized(W, X, y, reg):
 
     loss = -np.log(probs[np.arange(num_train), y])
 
-    # loss is a single number
     loss = np.sum(loss)
 
-    # since dL(i)/df(k) = p(k) - 1 (if k = y[i]), where f is a vector of scores for the given example
-    # i is the training sample and k is the class
     dscores = probs.reshape(num_train, -1)
     dscores[np.arange(num_train), y] -= 1
 
-    # since scores = X.dot(W), iget dW by multiplying X.T and dscores
-    # W is D x C so dW should also match those dimensions
-    # X.T x dscores = (D x 1) x (1 x C) = D x C
     dW = np.dot(X.T.reshape(X.shape[1], num_train), dscores)
 
-    # Right now the loss is a sum over all training examples, but we want it
-    # to be an average instead so we divide by num_train.
     loss /= num_train
     dW /= num_train
 
