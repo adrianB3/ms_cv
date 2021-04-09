@@ -38,7 +38,7 @@ def softmax_loss_naive(W, X, y, reg):
 
     for i in range(nb_train):
         scores = X[i].dot(W)
-        scores -= scores.max()
+        scores -= scores.max() # for numerical stability reasons
         exp = np.exp(scores)
         probs = exp/np.sum(exp)
 
@@ -82,7 +82,7 @@ def softmax_loss_vectorized(W, X, y, reg):
 
     scores = X.dot(W)  # scores.shape is N x C
 
-    # shift values for 'scores' for numeric reasons (over-flow cautious)
+    # shift values for 'scores' for numeric reasons
     scores -= scores.max(axis=1, keepdims=True)
 
     probs = np.exp(scores) / np.sum(np.exp(scores), axis=1, keepdims=True)

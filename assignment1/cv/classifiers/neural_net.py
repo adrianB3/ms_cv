@@ -80,7 +80,7 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        layer1 = np.maximum(0, X.dot(W1) + b1)
+        layer1 = np.maximum(0, X.dot(W1) + b1) #ReLU
         scores = layer1.dot(W2) + b2
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -124,11 +124,11 @@ class TwoLayerNet(object):
         dW2 /= N
         db2 = dscores.sum(axis=0) / N
 
-        da1 = dscores.dot(W2.T)
-        da1[layer1 == 0] = 0
-        dW1 = X.T.dot(da1)
+        dhidden = dscores.dot(W2.T)
+        dhidden[layer1 <= 0] = 0
+        dW1 = X.T.dot(dhidden)
         dW1 /= N
-        db1 = da1.sum(axis=0) / N
+        db1 = dhidden.sum(axis=0) / N
 
         dW1 += 2 * reg * W1
         dW2 += 2 * reg * W2

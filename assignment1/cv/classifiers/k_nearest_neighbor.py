@@ -134,11 +134,10 @@ class KNearestNeighbor(object):
         # decompose (x - y)^2 into x^2 + y^2 - 2xy where x, y are the vectors of pixels
         # corresponding to images I_1 and I_2
 
-        xy = -2 * np.dot(X, self.X_train.T)
-        x2 = np.sum(np.square(self.X_train), axis=1)
-        y2 = np.sum(np.square(X)[:, np.newaxis, :], axis=2)
+        x_square = np.sum(np.square(X), axis=1).reshape(num_test, 1)
+        y_square = np.sum(np.square(self.X_train), axis=1).reshape(1, num_train)
 
-        dists = np.sqrt(xy + (x2 + y2))
+        dists = np.sqrt(x_square + y_square - 2 * np.dot(X, self.X_train.T))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -184,9 +183,9 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            max_value = np.argmax(np.bincount(closest_y))
+            max_class = np.argmax(np.bincount(closest_y))
 
-            y_pred[i] = max_value
+            y_pred[i] = max_class
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

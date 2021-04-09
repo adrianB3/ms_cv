@@ -83,8 +83,8 @@ def svm_loss_vectorized(W, X, y, reg):
 
     scores = X.dot(W)
     yi_scores = scores[np.arange(scores.shape[0]), y]
-    margins = np.maximum(0, scores - np.matrix(yi_scores).T + 1)
-    margins[np.arange(X.shape[0]), y] = 0
+    margins = np.maximum(0, scores - np.asmatrix(yi_scores).T + 1)
+    margins[np.arange(X.shape[0]), y] = 0 # the margins for the correct classes are put to 0
     loss = np.mean(np.sum(margins, axis=1))
     loss += reg * np.sum(W * W)
 
@@ -101,11 +101,10 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    binary = margins
-    binary[margins > 0] = 1
-    row_sum = np.sum(binary, axis=1)
-    binary[np.arange(X.shape[0]), y] = -row_sum.T
-    dW = np.dot(X.T, binary)
+    mask = margins
+    mask[margins > 0] = 1
+    mask[np.arange(X.shape[0]), y] = -np.sum(mask, axis=1)
+    dW = np.dot(X.T, mask)
 
     dW /= X.shape[0]
 
