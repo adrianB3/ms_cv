@@ -34,7 +34,19 @@ def compute_saliency_maps(X, y, model):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    # forward pass
+    scores = model(X)  # (N, C)
+    scores = scores.gather(dim=1, index=y.view(-1, 1)).squeeze()  # (N,)
+
+    # backward pass
+    scores.backward(torch.FloatTensor([1.0] * scores.shape[0]))  # (N,)
+
+    # compute saliency maps
+    # convert X.grad.data which is (N, 3, H, W) to saliency maps which is (N, H, W) by
+    # (i) taking the absolute value of this gradient (all entries are thus nonnegative)
+    # (ii) taking the maximum value over the 3 input channels
+    # note that torch uses the channel-first notation so dim=1
+    saliency, _ = X.grad.data.abs().max(dim=1)  # or torch.max(X.grad.data.abs(), dim=1)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
@@ -76,9 +88,32 @@ def make_fooling_image(X, target_y, model):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    for i in range(100):  # try out 100 iterations max
+        # make a prediction for X_fooling using the model
+        scores = model(X_fooling)
 
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        # get the predicted class
+        idx = torch.argmax(scores, dim=1)  # scores is (N, C)
+        # or _, idx = torch.max(scores, dim=1)
+
+        if (idx != target_y):
+            scores[:, target_y].backward()  # scores is (N, C)
+
+            # when computing an update step, first normalize the gradient
+            # default for torch.norm is "frobenius norm" for matrices and "2-norm" for vectors
+            dX = learning_rate * X_fooling.grad.data / torch.norm(X_fooling.grad.data)
+
+            # perform gradient ascent
+            X_fooling.data += dX.data
+
+            # zero out the gradients on the input image for the next step
+            X_fooling.grad.data.zero_()
+        else:
+            print(type(scores.data.max(1)[1][0].item()), type(target_y))
+            # stop when the model is fooled
+            break
+
+            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
     #                             END OF YOUR CODE                               #
     ##############################################################################
@@ -94,7 +129,19 @@ def class_visualization_update_step(img, model, target_y, l2_reg, learning_rate)
     ########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    # generate scores
+    scores = model(img)
+
+    # compute the gradient of the score for the class target_y with the L2 reg
+    score = scores[:, target_y] - (l2_reg * torch.square(torch.norm(img)))
+    score.backward()
+
+    # make a gradient step on the image using the learning rate and
+    # gradient of of the score for the class target_y with respect to the pixels of the image
+    img.data += learning_rate * img.grad.data
+
+    # zero out the gradients on the input image for the next step
+    img.grad.data.zero_()
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ########################################################################
