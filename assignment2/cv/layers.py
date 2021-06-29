@@ -282,8 +282,7 @@ def batchnorm_backward(dout, cache):
     dzdv = -0.5 * (cache['var'] ** -1.5) * (cache['x'] - cache['mean'])  # [NxD]
     dvdu = -2 / N * np.sum(cache['x'] - cache['mean'], axis=0)  # [1xD]
 
-    dx = dfdz * dzdx + np.sum(dfdz * dzdu, axis=0) * dudx + \
-         np.sum(dfdz * dzdv, axis=0) * (dvdx + dvdu * dudx)
+    dx = dfdz * dzdx + np.sum(dfdz * dzdu, axis=0) * dudx + np.sum(dfdz * dzdv, axis=0) * (dvdx + dvdu * dudx)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
