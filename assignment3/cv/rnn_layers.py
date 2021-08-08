@@ -120,8 +120,7 @@ def rnn_forward(x, h0, Wx, Wh, b):
     forward_cache = {}
 
     for t in range(T):
-        h[:, t, :], forward_cache[t] = rnn_step_forward(x[:, t, :], h0 if \
-            t == 0 else h[:, t - 1, :], Wx, Wh, b)
+        h[:, t, :], forward_cache[t] = rnn_step_forward(x[:, t, :], h0 if t == 0 else h[:, t - 1, :], Wx, Wh, b)
 
     cache = (h0, forward_cache, D)
 
@@ -167,7 +166,7 @@ def rnn_backward(dh, cache):
     db = np.zeros((H,))
 
     dprev_h = 0
-    for t in reversed(range(T)): # or range(T-1, -1, -1)
+    for t in reversed(range(T)):
         dh_ag = dh[:, t, :] + dprev_h
         dx_step, dprev_h, dWx_step, dWh_step, db_step = rnn_step_backward(dh_ag, forward_cache[t])
         dWx += dWx_step
@@ -358,7 +357,7 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     # (3)
     do = dnext_h * np.tanh(next_c)
     dc = (1 - np.tanh(next_c) ** 2) * dnext_h * o
-    dc += dnext_c  # don't forget to add gradients of the next cell state
+    dc += dnext_c
     df = dc * prev_c
     dprev_c = dc * f
     di = g * dc
